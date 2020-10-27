@@ -1,0 +1,67 @@
+#!/bin/sh
+# Open a Jupyter Notebook on a cluster and connect to it in browser over SSH tunnel.
+# Based on http://pangeo.io/setup_guides/hpc.html.
+
+###   CONFIGURATION  ###
+
+cluster='beo05.unifr.ch'
+q_name='big.q'
+ncores='16'
+local_os='mac' # currently only mac. Otherwise leave blank (only affects whether notebook is auto-launched in browser.)
+
+### END CONFIGURATION ###
+
+
+echo '=== PANGEO ON HPC ==='
+echo "Cluster: ${cluster}"
+echo "Cores: ${ncores}"
+echo "Submitting to Queue: ${q_name}\n\n"
+
+echo "Setting up cluster . . . "
+
+# Delete any old lab_host file on cluster
+ssh $cluster "rm ~/.jupyter_lab_host"
+# And locally
+rm ~/.jupyter_lab_host
+
+# On cluster, request an interactive session with specified resource requirements;
+# in that session, start up JupyterLab Server.   
+# Old setting, no longer needed: -S %d/%C 
+ssh -f ${cluster} "export SGE_ROOT=/opt/sge; source /opt/sge/default/common/settings.sh; qrsh -q ${q_name} -pe smp ${ncores} source ~/scripts/start_jlab.sh"
+
+echo "\n\nGetting cluster node . . . "
+status=1
+while [ $status -gt 0 ]
+do
+# The script run on the cluster saves a file with the host name of the node in it.
+# First save the file to the local machine.
+	scp ${cluster}:.jupyter_lab_host ~/
+	if ! head ~/.jupyter_lab_host; then
+		status=1
+		sleep 5
+	else
+		status=0
+	fi
+done
+
+# Now read the host name.
+jhost="$(head ~/.jupyter_lab_host)"
+
+# Open an SSH tunnel to the node running the notebook instance, fork it.
+# Sleep is interrupted by navigating to the notebook.
+# Later, when the user finishes with the notebook, sleep will finish and the tunnel will close.
+# (used to have -N rather than -f)
+ssh -f -L 8888:${jhost}:8888 ${cluster} sleep 60 
+
+# Open up the notebook in Firefox in local browser
+case $local_os in 
+	(mac)
+	open -a firefox http://localhost:8888 & ;;
+	echo "Notebook now open in your browser window."
+esac
+
+
+echo "When you are finished, remember to:"
+echo "ssh ${cluster} "
+echo "qst"
+echo "qdel <id_of_qrsh_job>"
