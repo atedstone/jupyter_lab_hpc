@@ -6,7 +6,7 @@
 
 cluster='beo05.unifr.ch'
 q_name='big.q'
-ncores='16'
+ncores='2'
 local_os='mac' # currently only mac. Otherwise leave blank (only affects whether notebook is auto-launched in browser.)
 
 ### END CONFIGURATION ###
@@ -27,6 +27,7 @@ rm ~/.jupyter_lab_host
 # On cluster, request an interactive session with specified resource requirements;
 # in that session, start up JupyterLab Server.   
 # Old setting, no longer needed: -S %d/%C 
+# https://docs.oracle.com/cd/E19787-01/819-3064/ds_template-23/index.html
 ssh -f ${cluster} "export SGE_ROOT=/opt/sge; source /opt/sge/default/common/settings.sh; qrsh -q ${q_name} -pe smp ${ncores} source ~/scripts/start_jlab.sh"
 
 echo "\n\nGetting cluster node . . . "
