@@ -5,8 +5,8 @@
 ###   CONFIGURATION  ###
 
 cluster='beo05.unifr.ch'
-q_name='big.q'
-ncores='2'
+q_name='new.q'
+ncores=$1
 local_os='mac' # currently only mac. Otherwise leave blank (only affects whether notebook is auto-launched in browser.)
 
 ### END CONFIGURATION ###
@@ -57,8 +57,8 @@ ssh -f -L 8888:${jhost}:8888 ${cluster} sleep 60
 # Open up the notebook in Firefox in local browser
 case $local_os in 
 	(mac)
-	open -a firefox http://localhost:8888 & ;;
-	echo "Notebook now open in your browser window."
+	open -a firefox http://localhost:8888 & 
+	echo "Notebook now open in your browser window. If it didn't work, check whether port 8888 was chosen (see outputs from [LabApp] above)."
 esac
 
 
