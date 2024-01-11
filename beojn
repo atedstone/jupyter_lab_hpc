@@ -5,8 +5,9 @@
 ###   CONFIGURATION  ###
 
 cluster='beo05.unifr.ch'
-q_name='new.q'
+q_name='new'
 ncores=$1
+nmem=10
 local_os='mac' # currently only mac. Otherwise leave blank (only affects whether notebook is auto-launched in browser.)
 
 ### END CONFIGURATION ###
@@ -28,7 +29,7 @@ rm ~/.jupyter_lab_host
 # in that session, start up JupyterLab Server.   
 # Old setting, no longer needed: -S %d/%C 
 # https://docs.oracle.com/cd/E19787-01/819-3064/ds_template-23/index.html
-ssh -f ${cluster} "export SGE_ROOT=/opt/sge; source /opt/sge/default/common/settings.sh; qrsh -q ${q_name} -pe smp ${ncores} source ~/scripts/start_jlab.sh"
+ssh -f ${cluster} "srun -c 2 --mem 10G --partition=new --account=unifr -t 8:00:00 bash source ~/scripts/start_jlab.sh"
 
 echo "\n\nGetting cluster node . . . "
 status=1

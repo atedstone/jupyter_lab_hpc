@@ -4,6 +4,7 @@ How to run Jupyter Lab on the UniFr beo05 HPC.
 
 Based on setup instructions from Pangeo: http://pangeo.io/setup_guides/hpc.html
 
+
 ## Configuration
 
 The simplest configuration for day-to-day use requires the use of SSH keys. For Windows, https://devops.ionos.com/tutorials/use-ssh-keys-with-putty-on-windows/ has useful information.
@@ -11,6 +12,31 @@ The simplest configuration for day-to-day use requires the use of SSH keys. For 
 Your account on beo05 first needs to be setup for Jupyter Lab.
 
 For generic HPC info: https://carpentries-incubator.github.io/hpc-intro/ 
+
+
+## SLURM job manager
+
+SLURM implementation not as 'neat' as previous Grid Engine implementation (below).
+
+Setup:
+
+1. Place `jlab_slurm.sh` and `start_jlab.sh` on to the cluster.
+2. Update `start_jlab.sh` to have the correct `conda activate` and `source` calls for your application. Take a note of the port on which the notebook server will start.
+3. Update `jlab_slurm.sh` with the desired resources for running the notebook server. (remember that, once the server is running, you can then spin up additional Dask clusters for computation).
+
+Running:
+
+1. SSH into beo05
+2. `sbatch jlab_slurm.sh`
+3. `sq -u <username>` then note the node specified in the the NODELIST column
+4. In a new terminal, `ssh -f -L 8892:<node>.cluster:8892 beo05.unifr.ch sleep 60`
+5. In a browser, go to `localhost:8892`.
+
+
+
+## Grid Engine job manager (no longer supported by beo05)
+
+**Kept here for archive purposes only.**
 
 ### Installation on beo05
 
@@ -38,7 +64,7 @@ However, you may want to consider running JupyterLab via Ubuntu installed using 
 * Firefox or another browser to be installed within Ubuntu WSL (because the SSH tunnel needed to open the JupyterLab port is between your WSL and beo05, *not* between Windows and beo05).
 
 
-## Running 
+### Running
 
 On Unix/Mac, a regular terminal window suffices. Execute
 
